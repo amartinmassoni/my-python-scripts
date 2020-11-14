@@ -36,8 +36,9 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument( "maillog", nargs = "+" )
-    parser.add_argument( "-o", "--output", required = True )
+    parser.description = "Process one or more postfix maillog files, and return one Excel file"
+    parser.add_argument( "maillog", nargs = "+", help = "Input: maillog files" )
+    parser.add_argument( "-o", "--output", help = "Output: Excel file", required = True )
     args = parser.parse_args()
     postfix_maillog_excel( maillog = args.maillog, output = args.output )
 
