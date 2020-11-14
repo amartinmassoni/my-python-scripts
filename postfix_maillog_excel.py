@@ -41,10 +41,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     postfix_maillog_excel( maillog = args.maillog, output = args.output )
 
-
-
-# Nov 13 06:53:00 pasarela postfix/pickup[56646]: EF6546014B: uid=0 from=<root>
-# Nov 13 06:53:01 pasarela postfix/cleanup[62996]: EF6546014B: message-id=<20201113055300.EF6546014B@pasarela.wpsnetwork.com>
-# Nov 13 06:53:01 pasarela postfix/qmgr[1359]: EF6546014B: from=<root@pasarela.wpsnetwork.com>, size=5207, nrcpt=1 (queue active)
-# Nov 13 06:53:02 pasarela postfix/smtp[62998]: EF6546014B: to=<seville.dbateam@onyxcentersource.com>, relay=smtp.socketlabs.com[142.0.191.0]:25, delay=2, delays=0.08/0.17/1.3/0.41, dsn=2.0.0, status=sent (250 2.0.0 Message received and queued as b30000002c3c62.)
-# Nov 13 06:53:02 pasarela postfix/qmgr[1359]: EF6546014B: removed
