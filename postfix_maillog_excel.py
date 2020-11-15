@@ -19,11 +19,11 @@ class QueueMessage:
         self.queue_id = queue_id
         self.from_timestamp = timestamp
         self.to_timestamp = timestamp
-        self.client = None
-        self.message_id = None
-        self.from_ = None
-        self.size = None
-        self.nrcpt = None
+        self._client = None
+        self._message_id = None
+        self._from = None
+        self._size = None
+        self._nrcpt = None
         self.removed = False
         self.delivery = []
         self.items = []
@@ -32,8 +32,16 @@ class QueueMessage:
         self.to_timestamp = max( self.to_timestamp, timestamp )
         if text == "removed":
             self.removed = True
-        else:
+        elif text.startswith( "to=" ):
+            # SmtpDelivery
             self.items.append( [ item.split( "=", 1 ) for item in text.split( ", " ) ] )
+        else:
+            for item in text.split( ", " ):
+                itemname, itemvalue = item.split( "=", 1 )
+                if itemname in [ "client", "message-id", "from", "size", "nrcpt" ]:
+                    setattr( self, "_" + itemname.replace( "-", "_" ), itemvalue )
+                else:
+                    self.items.append( [ itemname, itemvalue ] )
 
     def __repr__( self ):
         return f'<QueueMessage {self.queue_id}: from {self.from_timestamp} to {self.to_timestamp} removed:{self.removed}>'
