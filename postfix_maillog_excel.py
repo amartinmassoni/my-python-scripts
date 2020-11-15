@@ -94,7 +94,8 @@ def messages_to_excel( queue_ids, queue_messages, output ):
     ws1 = wb.active
     ws1.title = "Maillog"
     row_number = 1
-    for ( column_number, column_name ) in enumerate( [ "Queue Id", "Uid", "Client", "Message-Id", "From", "Size", "Removed", "Delivery To", "Delivery Status" ], start = 1 ):
+    for ( column_number, column_name ) in enumerate( [ "Queue Id", "Uid", "Client", "Message-Id", "From", "Size", "Removed",
+                                                       "Delivery To", "Delivery Relay", "Delivery Status" ], start = 1 ):
         ws1.cell( column = column_number, row = row_number, value = column_name )
     for queue_id in queue_ids:
         row_number = row_number + 1
@@ -111,7 +112,8 @@ def messages_to_excel( queue_ids, queue_messages, output ):
         for delivery in queue_message.delivery:
             row_number = row_number + 1
             ws1.cell( column = 8, row = row_number, value = delivery._to )
-            ws1.cell( column = 9, row = row_number, value = delivery._status )
+            ws1.cell( column = 9, row = row_number, value = delivery._relay )
+            ws1.cell( column = 10, row = row_number, value = delivery._status )
     wb.save( filename = output )
 
 if __name__ == "__main__":
