@@ -93,9 +93,25 @@ def messages_to_excel( queue_ids, queue_messages, output ):
     wb = openpyxl.Workbook()
     ws1 = wb.active
     ws1.title = "Maillog"
-    for ( column_number, column_name ) in enumerate( [ "ID", "Client" ], start = 1 ):
-        ws1.cell( column = column_number, row = 1, value = column_name )
-
+    row_number = 1
+    for ( column_number, column_name ) in enumerate( [ "Queue Id", "Uid", "Client", "Message-Id", "From", "Size", "Removed", "Delivery To", "Delivery Status" ], start = 1 ):
+        ws1.cell( column = column_number, row = row_number, value = column_name )
+    for queue_id in queue_ids:
+        row_number = row_number + 1
+        ws1.cell( column = 1, row = row_number, value = queue_id )
+        queue_message = queue_messages[ queue_id ]
+        ws1.cell( column = 2, row = row_number, value = queue_message._uid )
+        ws1.cell( column = 3, row = row_number, value = queue_message._client )
+        ws1.cell( column = 4, row = row_number, value = queue_message._message_id )
+        ws1.cell( column = 5, row = row_number, value = queue_message._from )
+        ws1.cell( column = 6, row = row_number, value = int( queue_message._size ) )
+        ws1.cell( column = 7, row = row_number, value = queue_message.removed and "True" or "False" )
+        if queue_message.delivery:
+            row_number = row_number - 1
+        for delivery in queue_message.delivery:
+            row_number = row_number + 1
+            ws1.cell( column = 8, row = row_number, value = delivery._to )
+            ws1.cell( column = 9, row = row_number, value = delivery._status )
     wb.save( filename = output )
 
 if __name__ == "__main__":
@@ -108,4 +124,4 @@ if __name__ == "__main__":
     parser.add_argument( "-o", "--output", help = "Output: Excel file", required = True )
     args = parser.parse_args()
     queue_ids, queue_messages = postfix_maillog( maillog = args.maillog )
-#    messages_to_excel( queue_ids = queue_ids, queue_messages = queue_messages, output = args.output )
+    messages_to_excel( queue_ids = queue_ids, queue_messages = queue_messages, output = args.output )
