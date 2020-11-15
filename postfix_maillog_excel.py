@@ -6,19 +6,27 @@ import time
 import re
 
 class SmtpDelivery:
-    def __init__( self, items ):
-         self.to_ = None
-         self.relay = None
-         self.delay = None
-         self.delays = None
-         self.dsn = None
-         self.status = None
+    def __init__( self, text, timestamp ):
+        self.timestamp = timestamp
+        self._to = None
+        self._relay = None
+        self._delay = None
+        self._delays = None
+        self._dsn = None
+        self._status = None
+        for item in text.split( ", " ):
+            itemname, itemvalue = item.split( "=", 1 )
+            setattr( self, "_" + itemname.lower(), itemvalue )
+
+    def __repr__( self ):
+        return f'<SmtpDelivery to: {self._to}, status: {self._status}>'
 
 class QueueMessage:
     def __init__( self, queue_id, timestamp ):
         self.queue_id = queue_id
         self.from_timestamp = timestamp
         self.to_timestamp = timestamp
+        self._uid = None
         self._client = None
         self._message_id = None
         self._from = None
@@ -34,14 +42,11 @@ class QueueMessage:
             self.removed = True
         elif text.startswith( "to=" ):
             # SmtpDelivery
-            self.items.append( [ item.split( "=", 1 ) for item in text.split( ", " ) ] )
+            self.delivery.append( SmtpDelivery( timestamp = timestamp, text = text ) )
         else:
             for item in text.split( ", " ):
                 itemname, itemvalue = item.split( "=", 1 )
-                if itemname in [ "client", "message-id", "from", "size", "nrcpt" ]:
-                    setattr( self, "_" + itemname.replace( "-", "_" ), itemvalue )
-                else:
-                    self.items.append( [ itemname, itemvalue ] )
+                setattr( self, "_" + itemname.replace( "-", "_" ), itemvalue )
 
     def __repr__( self ):
         return f'<QueueMessage {self.queue_id}: from {self.from_timestamp} to {self.to_timestamp} removed:{self.removed}>'
@@ -88,11 +93,10 @@ def messages_to_excel( queue_ids, queue_messages, output ):
     wb = openpyxl.Workbook()
     ws1 = wb.active
     ws1.title = "Maillog"
-    for ( column_number, column_name ) in enumerate( [ "ID", "Client" ] ):
+    for ( column_number, column_name ) in enumerate( [ "ID", "Client" ], start = 1 ):
         ws1.cell( column = column_number, row = 1, value = column_name )
 
     wb.save( filename = output )
-
 
 if __name__ == "__main__":
 
@@ -104,4 +108,4 @@ if __name__ == "__main__":
     parser.add_argument( "-o", "--output", help = "Output: Excel file", required = True )
     args = parser.parse_args()
     queue_ids, queue_messages = postfix_maillog( maillog = args.maillog )
-    messages_to_excel( queue_ids = queue_ids, queue_messages = queue_messages, output = args.output )
+#    messages_to_excel( queue_ids = queue_ids, queue_messages = queue_messages, output = args.output )
