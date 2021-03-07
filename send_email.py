@@ -17,6 +17,7 @@ def retry( attempts, delay, function, *positional, **named ):
         except:
             if attempt < attempts:
                 print( "Error at attempt", attempt, ":", sys.exc_info()[ 0 ], sys.exc_info()[ 1 ] )
+                time.sleep( delay )
             else:
                 raise
 
