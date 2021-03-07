@@ -1,10 +1,25 @@
 #!/usr/bin/python3
 
+import time
 import sys
 import argparse
 import smtplib
 from email.mime.text import MIMEText
 from email.utils import formatdate
+
+
+def retry( attempts, delay, function, *positional, **named ):
+    attempt = 0
+    while attempt < attempts:
+        attempt = attempt + 1
+        try:
+            return function( *positional, **named )
+        except:
+            if attempt < attempts:
+                print( "Error at attempt", attempt, ":", sys.exc_info()[ 0 ], sys.exc_info()[ 1 ] )
+            else:
+                raise
+
 
 def send_email( from_addr, to_addrs, subject, body ):
     msg = MIMEText( body, 'plain' )
@@ -13,7 +28,7 @@ def send_email( from_addr, to_addrs, subject, body ):
     msg[ 'Subject' ] = subject
     msg[ 'Date' ] = formatdate()
 
-    srv = smtplib.SMTP( 'localhost' )
+    srv = retry( 3, 10, smtplib.SMTP, 'localhost' )
     srv.send_message( msg )
     srv.quit()
 
